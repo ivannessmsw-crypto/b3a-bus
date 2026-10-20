@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1424">
+  <title>B3A · Fu Tai Estate → Shenzhen Bay Port</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 0%, #193b50 0, transparent 37%), #0c1424; color: #f5f8fb; }
+    .shell { width: min(760px, 100%); margin: 0 auto; padding: clamp(24px, 6vw, 50px) clamp(18px, 5vw, 36px) 48px; }
+    .eyebrow { color: #91b9c6; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: 22px 0 34px; }
+    .route { display: inline-block; background: #ffdc58; color: #142028; border-radius: 16px; padding: 8px 17px 10px; font-size: clamp(38px, 9vw, 58px); font-weight: 900; line-height: 1; letter-spacing: -.07em; }
+    h1 { margin: 3px 0 9px; font-size: clamp(26px, 6vw, 40px); line-height: 1.1; letter-spacing: -.04em; }
+    .sub { margin: 0; color: #a7b6c7; font-size: 16px; }
+    .trip { display: flex; gap: 16px; align-items: stretch; margin-bottom: 28px; }
+    .rail { width: 18px; display: flex; flex-direction: column; align-items: center; padding: 8px 0; flex: none; }
+    .dot { width: 12px; height: 12px; background: #70e1be; border-radius: 50%; flex: none; box-shadow: 0 0 0 4px #70e1be22; }
+    .dot.end { background: #ffdc58; box-shadow: 0 0 0 4px #ffdc5822; }
+    .line { width: 2px; min-height: 42px; flex: 1; margin: 5px 0; background: #526478; }
+    .places { display: grid; gap: 22px; }
+    .place small { display: block; color: #92a3b7; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+    .place strong { display: block; font-size: 21px; line-height: 1.2; }
+    .place span { display: block; color: #9fb1c1; font-size: 14px; margin-top: 4px; }
+    .board { background: #f8fafc; color: #142337; border-radius: 24px; overflow: hidden; box-shadow: 0 22px 70px #020a1855; }
+    .board-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 19px 23px; border-bottom: 1px solid #dde4eb; }
+    .board-head h2 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
+    .live { display: inline-flex; align-items: center; gap: 8px; color: #256653; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #35bd8f; }
+    .live.stale { color: #a65e28; }
+    .live.stale::before { background: #e8a853; }
+    #arrivals { min-height: 184px; }
+    .arrival { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 23px; border-bottom: 1px solid #e7edf2; }
+    .arrival:last-child { border-bottom: 0; }
+    .arrival.next { background: #eef9f5; }
+    .arrival .label { color: #527063; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .arrival:not(.next) .label { color: #758495; }
+    .arrival .time { font-size: 16px; font-weight: 650; }
+    .arrival .remark { color: #67788a; font-size: 13px; margin-top: 5px; }
+    .minutes { display: flex; align-items: baseline; gap: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .minutes strong { font-size: clamp(42px, 10vw, 61px); line-height: 1; letter-spacing: -.06em; }
+    .minutes span { color: #68798a; font-size: 14px; font-weight: 700; }
+    .arrival.next .minutes strong { color: #0c8460; }
+    .message { padding: 36px 23px; color: #5c6e7d; line-height: 1.5; }
+    .message strong { display: block; color: #25394c; margin-bottom: 4px; }
+    .meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 19px; color: #a3b2c1; font-size: 13px; }
+    .schedule { margin-top: 40px; }
+    .schedule h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.03em; }
+    .schedule-intro { margin: 0 0 17px; color: #a7b6c7; line-height: 1.5; font-size: 14px; }
+    .day { margin: 10px 0; border: 1px solid #34475c; border-radius: 16px; overflow: hidden; background: #172439; }
+    .day summary { cursor: pointer; padding: 16px 19px; font-weight: 750; list-style-position: inside; }
+    .day[open] summary { border-bottom: 1px solid #34475c; }
+    .day table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .day th, .day td { padding: 10px 19px; text-align: left; border-bottom: 1px solid #27394d; }
+    .day tr:last-child td { border-bottom: 0; }
+    .day th { color: #93a9bd; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+    .day td:last-child, .day th:last-child { text-align: right; }
+    .day td:last-child { color: #ffdc58; font-weight: 750; }
+    .schedule-note { color: #a7b6c7; font-size: 13px; line-height: 1.55; margin: 16px 0 0; }
+    button { cursor: pointer; border: 1px solid #5c7184; background: transparent; color: #eff8f8; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 700; }
+    button:hover { background: #ffffff15; }
+    button:disabled { opacity: .55; cursor: wait; }
+    a { color: #9cdecf; }
+    .foot { margin-top: 28px; color: #899bad; font-size: 12px; line-height: 1.5; }
+    @media (max-width: 480px) { header { flex-direction: column; gap: 18px; } .board-head, .arrival { padding-left: 18px; padding-right: 18px; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="eyebrow">Citybus · live arrivals</div>
+    <header>
+      <div><h1>B3A departures</h1><p class="sub">Next buses in minutes</p></div>
+      <div class="route" aria-label="Route B3A">B3A</div>
+    </header>
+    <div class="trip" aria-label="Fu Tai Estate to Shenzhen Bay Port">
+      <div class="rail" aria-hidden="true"><div class="dot"></div><div class="line"></div><div class="dot end"></div></div>
+      <div class="places">
+        <div class="place"><small>Board at</small><strong>Fu Tai Estate</strong><span>Castle Peak Road · 富泰邨, 青山公路</span></div>
+        <div class="place"><small>Heading to</small><strong>Shenzhen Bay Port</strong><span>深圳灣口岸</span></div>
+      </div>
+    </div>
+    <section class="board" aria-label="Upcoming B3A buses">
+      <div class="board-head"><h2>Upcoming buses</h2><span class="live stale" id="status">Connecting</span></div>
+      <div id="arrivals" aria-live="polite"><div class="message">Loading Citybus arrival times…</div></div>
+    </section>
+    <div class="meta"><span id="updated">Waiting for live data</span><button id="refresh" type="button">Refresh now</button></div>
+    <section class="schedule" aria-labelledby="schedule-title">
+      <h2 id="schedule-title">Route schedule</h2>
+      <p class="schedule-intro">B3A towards Shenzhen Bay Port · published service from 31 August 2026</p>
+      <details class="day" open>
+        <summary>Monday to Friday</summary>
+        <table><thead><tr><th scope="col">Shan King departures</th><th scope="col">Every</th></tr></thead><tbody>
+          <tr><td>06:00–07:00</td><td>30 min</td></tr>
+          <tr><td>07:00–07:40</td><td>20 min</td></tr>
+          <tr><td>07:40–07:55</td><td>15 min</td></tr>
+          <tr><td>07:55–08:55</td><td>20 min</td></tr>
+          <tr><td>08:55–09:45</td><td>25 min</td></tr>
+          <tr><td>09:45–15:45</td><td>30 min</td></tr>
+          <tr><td>16:00</td><td>Special*</td></tr>
+          <tr><td>16:15–19:45</td><td>30 min</td></tr>
+          <tr><td>19:45–20:20</td><td>35 min</td></tr>
+          <tr><td>20:20–22:20</td><td>30 min</td></tr>
+        </tbody></table>
+      </details>
+      <details class="day">
+        <summary>Saturday</summary>
+        <table><thead><tr><th scope="col">Shan King departures</th><th scope="col">Every</th></tr></thead><tbody>
+          <tr><td>06:00–07:00</td><td>30 min</td></tr>
+          <tr><td>07:00–17:45</td><td>15–20 min</td></tr>
+          <tr><td>17:45–19:45</td><td>30 min</td></tr>
+          <tr><td>19:45–20:20</td><td>35 min</td></tr>
+          <tr><td>20:20–22:20</td><td>30 min</td></tr>
+        </tbody></table>
+      </details>
+      <details class="day">
+        <summary>Sunday &amp; public holidays</summary>
+        <table><thead><tr><th scope="col">Shan King departures</th><th scope="col">Every</th></tr></thead><tbody>
+          <tr><td>06:00–07:00</td><td>30 min</td></tr>
+          <tr><td>07:00–13:45</td><td>15–20 min</td></tr>
+          <tr><td>13:45–19:45</td><td>30 min</td></tr>
+          <tr><td>19:45–20:20</td><td>35 min</td></tr>
+          <tr><td>20:20–22:20</td><td>30 min</td></tr>
+        </tbody></table>
+      </details>
+      <p class="schedule-note">These are departure periods at Shan King Estate. Buses pass Fu Tai Estate later; use the live arrivals above for this stop. Additional Wo Tin Estate departures also serve Fu Tai: 16:55 and 17:55 on applicable school days, and 09:55, 10:55, 11:55 and 12:55 on Saturdays, Sundays and public holidays. *The 16:00 trip has school-day conditions. See the <a href="https://mobile.citybus.com.hk/nwp3/?ds=B3A--Shenzhen_Bay_Port&amp;f=1&amp;l=1" target="_blank" rel="noopener">Citybus timetable</a> for special-trip details.</p>
+    </section>
+    <p class="foot">Automatically refreshes every 30 seconds. Arrival estimates are provided by Citybus through <a href="https://data.gov.hk/en-data/dataset/ctb-eta-transport-realtime-eta" target="_blank" rel="noopener">DATA.GOV.HK</a> and may change. Citybus publishes ETA updates about once per minute.</p>
+  </main>
+  <script>
+    const API = 'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/003261/B3A';
+    const arrivalsEl = document.getElementById('arrivals');
+    const statusEl = document.getElementById('status');
+    const updatedEl = document.getElementById('updated');
+    const refreshButton = document.getElementById('refresh');
+    const timeFormat = new Intl.DateTimeFormat('en-HK', { timeZone: 'Asia/Hong_Kong', hour: 'numeric', minute: '2-digit', hour12: true });
+    const stampFormat = new Intl.DateTimeFormat('en-HK', { timeZone: 'Asia/Hong_Kong', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    let arrivals = [];
+    let lastSuccess = null;
+    let loading = false;
+
+    function setStatus(label, stale) {
+      statusEl.textContent = label;
+      statusEl.classList.toggle('stale', stale);
+    }
+
+    function render() {
+      const now = Date.now();
+      const upcoming = arrivals.filter(item => item.when >= now - 30000).sort((a, b) => a.when - b.when);
+      if (!upcoming.length) {
+        arrivalsEl.innerHTML = '<div class="message"><strong>No upcoming ETA available</strong>Citybus has no arrival estimate for this stop right now. The board will check again automatically.</div>';
+        return;
+      }
+      arrivalsEl.replaceChildren(...upcoming.map((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'arrival' + (index === 0 ? ' next' : '');
+        const info = document.createElement('div');
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = index === 0 ? 'Next bus' : `Bus ${index + 1}`;
+        const time = document.createElement('div');
+        time.className = 'time';
+        time.textContent = `Expected ${timeFormat.format(item.when)}`;
+        info.append(label, time);
+        if (item.remark) {
+          const remark = document.createElement('div');
+          remark.className = 'remark';
+          remark.textContent = item.remark;
+          info.append(remark);
+        }
+        const count = document.createElement('div');
+        count.className = 'minutes';
+        const value = document.createElement('strong');
+        const minutes = Math.max(0, Math.ceil((item.when - now) / 60000));
+        value.textContent = minutes === 0 ? 'Due' : String(minutes);
+        const unit = document.createElement('span');
+        unit.textContent = minutes === 0 ? '' : 'min';
+        count.append(value, unit);
+        row.append(info, count);
+        return row;
+      }));
+    }
+
+    async function refresh() {
+      if (loading) return;
+      loading = true;
+      refreshButton.disabled = true;
+      if (!lastSuccess) setStatus('Connecting', true);
+      try {
+        const response = await fetch(API, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (!Array.isArray(payload.data)) throw new Error('Unexpected response');
+        arrivals = payload.data
+          .filter(item => item.co === 'CTB' && item.route === 'B3A' && item.dir === 'O' && item.stop === '003261' && /Shenzhen Bay Port/i.test(item.dest_en || '') && item.eta)
+          .map(item => ({ when: Date.parse(item.eta), remark: item.rmk_en || '' }))
+          .filter(item => Number.isFinite(item.when));
+        lastSuccess = Date.now();
+        updatedEl.textContent = `Checked ${stampFormat.format(lastSuccess)} HKT`;
+        setStatus('Live', false);
+        render();
+      } catch (error) {
+        setStatus('Connection issue', true);
+        updatedEl.textContent = lastSuccess ? `Last checked ${stampFormat.format(lastSuccess)} HKT · retrying` : 'Unable to load live data · retrying';
+        if (!lastSuccess) arrivalsEl.innerHTML = '<div class="message"><strong>Arrival times unavailable</strong>Check your internet connection. The board will retry in 30 seconds.</div>';
+      } finally {
+        loading = false;
+        refreshButton.disabled = false;
+      }
+    }
+
+    refreshButton.addEventListener('click', refresh);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    refresh();
+    setInterval(refresh, 30000);
+    setInterval(() => { if (lastSuccess) render(); }, 1000);
+  </script>
+</body>
+</html>
